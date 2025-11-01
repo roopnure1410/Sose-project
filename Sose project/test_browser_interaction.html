@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenMusic Browser Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 OpenMusic Browser Interaction Test</h1>
+        <p>This page helps diagnose browser-side issues with the Gradio interface.</p>
+        
+        <div class="test-section">
+            <h3>🌐 Network Connectivity Test</h3>
+            <button onclick="testGradioConnection()">Test Gradio Connection</button>
+            <div id="connection-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Browser Capabilities Test</h3>
+            <button onclick="testBrowserCapabilities()">Test Browser Features</button>
+            <div id="browser-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📱 Direct Interface Test</h3>
+            <button onclick="openGradioInterface()">Open Gradio Interface</button>
+            <button onclick="testAudioSupport()">Test Audio Support</button>
+            <div id="interface-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎧 Audio Generation Test</h3>
+            <p>Instructions for manual testing:</p>
+            <ol>
+                <li>Click "Open Gradio Interface" above</li>
+                <li>In the new tab, enter: "peaceful piano melody"</li>
+                <li>Set duration to 5 seconds</li>
+                <li>Select "classical" style</li>
+                <li>Click "🎵 Generate Music"</li>
+                <li>Check browser console (F12) for any errors</li>
+            </ol>
+            <div id="manual-test-result" class="result">
+                <strong>Expected behavior:</strong><br>
+                - Status should show "🎵 Generating classical music... Please wait..."<br>
+                - After a few seconds, audio player should appear<br>
+                - Status should show "✅ Music generated successfully!"<br>
+                - Audio should be playable
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔍 Troubleshooting Guide</h3>
+            <div class="result">
+                <strong>If generation doesn't work:</strong><br>
+                1. Check browser console (F12 → Console tab)<br>
+                2. Look for JavaScript errors in red<br>
+                3. Try refreshing with Ctrl+F5<br>
+                4. Try a different browser (Chrome, Firefox, Edge)<br>
+                5. Disable browser extensions temporarily<br>
+                6. Check if antivirus/firewall is blocking localhost<br>
+                <br>
+                <strong>Common issues:</strong><br>
+                - CORS errors: Browser blocking localhost requests<br>
+                - JavaScript errors: Gradio components not loading<br>
+                - Network errors: Connection to localhost:7860 failed<br>
+                - Audio errors: Browser doesn't support audio format
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testGradioConnection() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.innerHTML = '<span class="info">Testing connection to localhost:7860...</span>';
+            
+            try {
+                const response = await fetch('http://localhost:7860', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<span class="success">✅ Successfully connected to Gradio interface</span>';
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Connection failed: HTTP ${response.status}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Connection error: ${error.message}</span>`;
+            }
+        }
+        
+        function testBrowserCapabilities() {
+            const resultDiv = document.getElementById('browser-result');
+            let results = [];
+            
+            // Test fetch API
+            if (typeof fetch !== 'undefined') {
+                results.push('<span class="success">✅ Fetch API supported</span>');
+            } else {
+                results.push('<span class="error">❌ Fetch API not supported</span>');
+            }
+            
+            // Test Audio API
+            if (typeof Audio !== 'undefined') {
+                results.push('<span class="success">✅ Audio API supported</span>');
+            } else {
+                results.push('<span class="error">❌ Audio API not supported</span>');
+            }
+            
+            // Test WebAudio API
+            if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                results.push('<span class="success">✅ WebAudio API supported</span>');
+            } else {
+                results.push('<span class="error">❌ WebAudio API not supported</span>');
+            }
+            
+            // Test localStorage
+            if (typeof Storage !== 'undefined') {
+                results.push('<span class="success">✅ LocalStorage supported</span>');
+            } else {
+                results.push('<span class="error">❌ LocalStorage not supported</span>');
+            }
+            
+            // Browser info
+            results.push(`<span class="info">🌐 Browser: ${navigator.userAgent}</span>`);
+            
+            resultDiv.innerHTML = results.join('<br>');
+        }
+        
+        function openGradioInterface() {
+            const resultDiv = document.getElementById('interface-result');
+            resultDiv.innerHTML = '<span class="info">Opening Gradio interface in new tab...</span>';
+            
+            const newWindow = window.open('http://localhost:7860', '_blank');
+            
+            if (newWindow) {
+                resultDiv.innerHTML = '<span class="success">✅ Interface opened in new tab</span>';
+            } else {
+                resultDiv.innerHTML = '<span class="error">❌ Popup blocked or failed to open</span>';
+            }
+        }
+        
+        function testAudioSupport() {
+            const resultDiv = document.getElementById('interface-result');
+            
+            try {
+                const audio = new Audio();
+                const formats = [
+                    { type: 'audio/wav', ext: 'WAV' },
+                    { type: 'audio/mp3', ext: 'MP3' },
+                    { type: 'audio/ogg', ext: 'OGG' }
+                ];
+                
+                let supportedFormats = [];
+                formats.forEach(format => {
+                    if (audio.canPlayType(format.type)) {
+                        supportedFormats.push(format.ext);
+                    }
+                });
+                
+                if (supportedFormats.length > 0) {
+                    resultDiv.innerHTML = `<span class="success">✅ Audio formats supported: ${supportedFormats.join(', ')}</span>`;
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ No audio formats supported</span>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Audio test failed: ${error.message}</span>`;
+            }
+        }
+        
+        // Auto-run basic tests on page load
+        window.onload = function() {
+            testBrowserCapabilities();
+            setTimeout(testGradioConnection, 1000);
+        };
+    </script>
+</body>
+</html>
