@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+body {
+  @apply bg-background text-white antialiased;
+}
+
+.accent-underline {
+  background-image: theme('backgroundImage.gradient-accent');
+  height: 2px;
+  width: 100%;
+}
+
+.glass {
+  @apply bg-white/5 backdrop-blur-sm border border-white/10;
+}
+
+.hover-glow:hover {
+  box-shadow: theme('boxShadow.glow');
+}
+
+.hover-glow-cyan:hover {
+  box-shadow: theme('boxShadow.cyanGlow');
+}
